@@ -1,7 +1,11 @@
 import json
 import traceback
 import urllib.parse
-from webdav import easywebdav
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
+import easywebdav
+#easywebdav = __import__('stellar-webdav.easywebdav')
 import StellarPlayer
 
 class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
@@ -91,6 +95,10 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
             traceback.print_exc()
 
     def on_connect_webdav(self,*arg):
+        self.host = self.player.getControlValue('login','主机名')
+        self.port = self.player.getControlValue('login','端口')
+        self.username = self.player.getControlValue('login','用户名')
+        self.password = self.player.getControlValue('login','密码')
         self.save_config()
         self.player.loadingAnimation('login')
         success = False
