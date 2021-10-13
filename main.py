@@ -21,16 +21,25 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
         self.host=''
         self.port=''
 
+    def isdir(self, item:easywebdav.File):
+        if item.contenttype == 'httpd/unix-directory':
+            return True
+        #类型为空，并且大小为0
+        if not item.contenttype and item.size == 0:
+            return True
+        return False
+
     def ls(self):
         if not self.path.endswith('/'):
                 self.path = self.path + '/'
         self.dir = self.webdav.ls(self.path)[1:]
+        print(self.dir)
         #文件夹类型排在前面
-        self.dir.sort(key=lambda item:0 if item.contenttype == 'httpd/unix-directory' else 1)
+        self.dir.sort(key=lambda item:0 if self.isdir(item) else 1)
         list_val = []
         for i in self.dir:
             path = i.name
-            if i.contenttype == 'httpd/unix-directory' and not path.endswith('/'):
+            if self.isdir(i) and not path.endswith('/'):
                 path = path + '/'
             path = path.replace(self.path,'',1)
             list_val.append({'title':urllib.parse.unquote(path)})
@@ -118,7 +127,7 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
         
     def on_click_item(self, page, control, idx, *arg):
         file = self.dir[idx]
-        if file.contenttype == 'httpd/unix-directory':
+        if self.isdir(file):
             self.path = file.name
             self.update_list_view()
         else:
