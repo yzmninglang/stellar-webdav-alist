@@ -144,7 +144,7 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
             self.path = file.name
             self.update_list_view()
         else:
-            self.player.play(f'http://{self.username}:{self.password}@{self.host}:{self.port}' + file.name)
+            self.player.play(f'{"https" if self.ssl else "http"}://{self.username}:{self.password}@{self.host}:{self.port}' + file.name)
 
     def on_click_back(self, *arg):
         if self.path != '/':
