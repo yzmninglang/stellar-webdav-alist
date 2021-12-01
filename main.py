@@ -22,8 +22,9 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
         self.password = ''
         self.host = ''
         self.port = ''
-        self.ssl = True
-        self.verify = True
+        self.ssl = False
+        self.verify = False
+        self.protocol = 'http'
 
     def isdir(self, item: easywebdav.File):
         if item.contenttype == 'httpd/unix-directory':
@@ -78,21 +79,24 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
                 {'type': 'space', 'height': 10},
                 {'type': 'button', 'name': '连接', '@click': 'on_connect_webdav', 'height': 30}
             ]
+
             self.doModal('login', 600, 400, '', controls)
 
         else:
             list_val = self.ls()
             list_layout = {'type': 'link', 'name': 'title', '@click': 'on_click_item'}
             controls = [
-                {'group':
-                    [
-                        {'type': 'link', 'name': '返回', 'width': 30, '@click': 'on_click_back'},
-                        {'type': 'label', 'name': 'path', 'value': self.path},
-                    ]
-                    , 'height': 30
+                {
+                    'group':
+                        [
+                            {'type': 'link', 'name': '返回', 'width': 30, '@click': 'on_click_back'},
+                            {'type': 'label', 'name': 'path', 'value': self.path},
+                        ],
+                    'height': 30
                 },
                 {'type': 'list', 'name': 'list', 'itemlayout': {'group': list_layout}, 'value': list_val,
-                 'separator': True, 'itemheight': 40}]
+                 'separator': True, 'itemheight': 40}
+            ]
             self.doModal('main', 800, 600, '', controls)
 
     def load_config(self):
@@ -103,8 +107,8 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
             self.port = config.get('port', '')
             self.username = config.get('username', '')
             self.password = config.get('password', '')
-            self.ssl = config.get('ssl', '')
-            self.verify = config.get('verify', '')
+            self.ssl = config.get('ssl', False)
+            self.verify = config.get('verify', False)
             f.close()
         except:
             traceback.print_exc()
@@ -123,11 +127,14 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
         self.port = self.player.getControlValue('login', '端口')
         self.username = self.player.getControlValue('login', '用户名')
         self.password = self.player.getControlValue('login', '密码')
+        self.ssl = self.player.getControlValue('login', 'SSL')
+        self.protocol = 'https' if self.ssl else 'http'
+        self.verify = self.player.getControlValue('login', '验证SSL证书')
         self.save_config()
         self.player.loadingAnimation('login')
         try:
             self.webdav = easywebdav.connect(self.host, port=int(self.port), username=self.username,
-                                             password=self.password, protocol='https' if self.ssl else 'http',
+                                             password=self.password, protocol=self.protocol,
                                              verify_ssl=self.verify)
             self.webdav.ls()
             self.player.closeModal('login', True)
@@ -135,7 +142,7 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
         except Exception as e:
             print(e)
             self.player.loadingAnimation('login', stop=True)
-            self.player.toast('login', '连接失败' + str(e))
+            self.player.toast('login', '连接失败\r\n' + str(e))
             self.webdav = None
 
     def on_click_item(self, page, control, idx, *arg):
@@ -144,7 +151,7 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
             self.path = file.name
             self.update_list_view()
         else:
-            self.player.play(f'{"https" if self.ssl else "http"}://{self.username}:{self.password}@{self.host}:{self.port}' + file.name)
+            self.player.play(f'{self.protocol}://{self.username}:{self.password}@{self.host}:{self.port}' + file.name)
 
     def on_click_back(self, *arg):
         if self.path != '/':
