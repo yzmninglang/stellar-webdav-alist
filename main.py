@@ -3,13 +3,13 @@ import os
 import sys
 import traceback
 import urllib.parse
-
+import re
 sys.path.append(os.path.dirname(__file__))
 import easywebdav
 # easywebdav = __import__('stellar-webdav.easywebdav')
 import StellarPlayer
 
-
+firefox_useragent ="Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0"
 class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
     def __init__(self, player: StellarPlayer.IStellarPlayer):
         super().__init__(player)
@@ -47,6 +47,8 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
             path = i.name
             if self.isdir(i) and not path.endswith('/'):
                 path = path + '/'
+            # 对于dav的
+            path = path.replace('/dav', '', 1)
             path = path.replace(self.path, '', 1)
             list_val.append({'title': urllib.parse.unquote(path)})
         return list_val
@@ -93,6 +95,7 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
                         [
                             {'type': 'link', 'name': '返回', 'width': 30, '@click': 'on_click_back'},
                             {'type': 'label', 'name': 'path', 'value': self.path},
+                            {'type': 'link', 'name': '添加到播放列表', 'width': 30, '@click': 'AddPlayList'},
                         ],
                     'height': 30
                 },
@@ -167,6 +170,40 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
                     paths.append(i)
             self.path = '/' + '/'.join(paths[:-1])
             self.update_list_view()
+
+    def filter_media_titles(self,data):
+        """
+        筛选出包含常见视频或音频格式的 title。
+
+        :param data: 包含字典的列表，每个字典有一个 'title' 键。
+        :return: 符合条件的 title 列表。
+        """
+        # 常见的视频和音频文件扩展名
+        media_extensions = r'\.(mp4|mkv|avi|mov|flv|wmv|webm|mp3|wav|flac|aac|ogg|m4a)$'
+        
+        # 编译正则表达式
+        pattern = re.compile(media_extensions, re.IGNORECASE)
+        
+        # 筛选符合条件的 title
+        result = [item['title'] for item in data if pattern.search(item['title'])]
+        
+        return result
+    def AddPlayList(self, *arg):
+        video_list = self.filter_media_titles(self.ls())
+        items =[]
+        for i in video_list:
+            item_temp={'name':i.split(".")[0],
+                       'url':f'{self.protocol}://{self.username}:{self.password}@{self.host}:{self.port}'+self.path+i,
+                       'headers': {'User-Agent': firefox_useragent}}
+            items.append(item_temp)
+        path=self.path
+        title=path.rsplit('/')
+        if title[-1]=='':
+            fold_name="webdav"
+        else:
+            fold_name=title[-1]
+        self.player.addToPlaylist(fold_name,items)
+        # pass
 
 
 def newPlugin(player: StellarPlayer.IStellarPlayer, *arg):
