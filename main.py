@@ -198,12 +198,15 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
                        'headers': {'User-Agent': firefox_useragent}}
             items.append(item_temp)
         path=self.path
+        self.player.toast(path)
         title=path.rsplit('/')
         if title[-1]=='':
             fold_name="webdav"
         else:
             fold_name=title[-1]
         self.player.addToPlaylist(fold_name,items)
+        # self.player.toast("添加成功:",fold_name)
+
         # pass
 
 
