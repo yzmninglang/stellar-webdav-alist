@@ -196,8 +196,8 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
                        'url':f'{self.protocol}://{self.username}:{self.password}@{self.host}:{self.port}'+self.path+i,
                        'headers': {'User-Agent': firefox_useragent}}
             items.append(item_temp)
-        path=self.path
-        self.player.toast(path)
+        path=urllib.parse.unquote(self.path)
+        # self.player.toast(path)
         title=path.rsplit('/')
         if title[-1]=='':
             fold_name="webdav"
