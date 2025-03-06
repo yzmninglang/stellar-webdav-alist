@@ -188,11 +188,23 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
         result = [item['title'] for item in data if pattern.search(item['title'])]
         
         return result
+    
+    def extract_filename(self,filename):
+        """
+        从文件名中提取主要部分（去掉扩展名）。
+        
+        :param filename: 输入的文件名字符串
+        :return: 处理后的字符串
+        """
+        # 方法 1：使用 rsplit 去掉扩展名
+        main_part = filename.rsplit('.', 1)[0]
+        return main_part
+    
     def AddPlayList(self, *arg):
         video_list = self.filter_media_titles(self.ls())
         items =[]
         for i in video_list:
-            item_temp={'name':i.split(".")[0],
+            item_temp={'name':self.extract_filename(i),
                        'url':f'{self.protocol}://{self.username}:{self.password}@{self.host}:{self.port}'+'/dav'+self.path+i,
                        'headers': {'User-Agent': firefox_useragent}}
             items.append(item_temp)
