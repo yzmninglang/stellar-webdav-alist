@@ -4,7 +4,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/yzmninglang/stellar-webdav-alist)](https://github.com/yzmninglang/stellar-webdav-alist/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/yzmninglang/stellar-webdav-alist)](https://github.com/yzmninglang/stellar-webdav-alist/network)
 
-Stellar WebDAV 项目旨在提供一个简单而强大的 WebDAV 服务器解决方案。本项目基于原有的 stellar-webdav 进行了扩展，新增了对 AList 的支持，并在用户界面上增加了路径参数输入框，允许用户以`dav/...`格式指定访问路径。
+Stellar WebDAV 项目旨在提供一个简单而强大的 WebDAV 服务器解决方案，能够帮助恒星播放器挂载webdav。本项目基于原有的 stellar-webdav 进行了扩展，新增了对 AList 的支持，并在用户界面上增加了路径参数输入框，允许用户以`dav/...`格式指定访问路径。
 
 ## 特性
 
