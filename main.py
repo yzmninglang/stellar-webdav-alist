@@ -191,9 +191,10 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
     def AddPlayList(self, *arg):
         video_list = self.filter_media_titles(self.ls())
         items =[]
+
         for i in video_list:
             item_temp={'name':i.split(".")[0],
-                       'url':f'{self.protocol}://{self.username}:{self.password}@{self.host}:{self.port}'+self.path+i,
+                       'url':f'{self.protocol}://{self.username}:{self.password}@{self.host}:{self.port}'+'/dav'+self.path+i,
                        'headers': {'User-Agent': firefox_useragent}}
             items.append(item_temp)
         path=self.path
