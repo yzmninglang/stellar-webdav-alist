@@ -94,8 +94,8 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
                     'group':
                         [
                             {'type': 'link', 'name': '返回', 'width': 30, '@click': 'on_click_back'},
-                            {'type': 'label', 'name': 'path', 'value': self.path},
-                            {'type': 'link', 'name': '添加到播放列表', 'width': 30, '@click': 'AddPlayList'},
+                            {'type': 'label', 'name': 'path', 'value': self.path}, 
+                            {'type': 'link', 'name': '添加到播放列表', 'width': 130, '@click': 'AddPlayList'},
                         ],
                     'height': 30
                 },
@@ -198,6 +198,8 @@ class WebdavPlugin(StellarPlayer.IStellarPlayerPlugin):
             items.append(item_temp)
         path=urllib.parse.unquote(self.path)
         # self.player.toast(path)
+        if path.endswith('/'):
+            path = path[:-1]
         title=path.rsplit('/')
         if title[-1]=='':
             fold_name="webdav"
